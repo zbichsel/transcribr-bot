@@ -1,7 +1,9 @@
+// configure the dotenv to safeguard credentials
 require('dotenv').config();
 const { Client, GatewayIntentBits, Partials } = require("discord.js");
 const OpenAI = require('openai');
 
+// create new instance of client for discord bot
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -24,18 +26,21 @@ client.on('ready', () => {
 })
 
 client.on("messageCreate", async function (message) {
-    if (message.content && message.content.trim() == "/ping") {
-        return message.reply("pong");
+    if (message.content && message.content.trim() == "/who are you voting for?") {
+        return message.reply("Biden 2024 baby!!!");
     }
-    if (message.author.bot) return;
-    if (message.guild && message.channel.name !== "〘_general_〙👱🏼👩🏽") return;
+    // check if message from user *mentions* the bot
+    const botMention = message.mentions.users.has(client.user.id);
+    if (!botMention || message.author.bot || (message.guild && message.channel.name !== "〘_general_〙👱🏼👩🏽")) {
+        return;
+    }
     const prompt = `Act as a sage oracle zombie cat who can speak like a human and responds succinctly. Try to roleplay as much as possible using emotes when appropriate`
     try {
         const response = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             messages: [
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": message.content}
+                { "role": "system", "content": prompt },
+                { "role": "user", "content": message.content }
             ],
             max_tokens: 400,
         });
